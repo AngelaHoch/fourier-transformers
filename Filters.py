@@ -1,18 +1,14 @@
 """
 TODO:
-
 -setters and getters
 -update generateMask
--ideal_band
--gaussian_circle
--gaussian_band
--butterworth_circle
--butterworth_band
 -notch
 -directional
-
 """
-
+"""
+Issues:
+-Butterworth filters do not seem to be fanning out correctly
+"""
 """
 To use functions from this class, create a Filter object with the following values:
 	shape of the image, stored as a tuple
@@ -39,14 +35,15 @@ class Filter:
 		self.inverse = inverse
 		self.theta = theta
 		self.ringwidth = ringwidth
-		self.thetawidth = thetaspan
+		self.thetaspan = thetaspan
+		self.order = order
 
 		if circle:
 			filter_func = filter_func + "_circle"
 		else:
-			filter_func = filter_func + "_ring"
+			filter_func = filter_func + "_band"
 
-		self.filter = getattr(self, filter_func, "ideal_circle")
+		self.filter = getattr(self, filter_func)
 
 	def generateMask(self):
 		"""
@@ -67,6 +64,11 @@ class Filter:
 
 		self.final_filter_mask = 1 - (filter_mask * directional_mask)
 
+		self.final_filter_mask = 255 * self.final_filter_mask
+		cv2.imshow('this thing', self.final_filter_mask)
+		cv2.waitKey(0)
+		cv2.destroyAllWindows()
+
 		return self.final_filter_mask
 
 	def ideal_circle(self):
@@ -84,19 +86,81 @@ class Filter:
 		return mask
 
 	def ideal_band(self):
-		pass
+		mask = np.zeros((self.shape[0],self.shape[1]))
+
+		ring_min = self.cutoff - (self.ringwidth/2)
+		ring_max = self.cutoff + (self.ringwidth/2)
+
+		for j in range(mask.shape[0]):
+			for i in range(mask.shape[1]):
+				x = ((j-mask.shape[0]/2)**2 + (i-mask.shape[1]/2)**2)**0.5
+				if x <= ring_max and x >= ring_min:
+					mask[j][i] = 1
+
+		if not self.inverse:
+			mask = 1 - mask
+
+		return mask
 
 	def gaussian_circle(self):
-		pass
+		mask = np.zeros((self.shape[0],self.shape[1]))
+
+		for j in range(mask.shape[0]):
+			for i in range(mask.shape[1]):
+				x = -((j-mask.shape[0]/2)**2 + (i-mask.shape[1]/2)**2)
+				mask[j][i] = np.exp(x/((2*self.cutoff)**2))
+
+		if not self.inverse:
+			mask = 1 - mask
+
+		return mask
 
 	def gaussian_band(self):
-		pass
+		mask = np.zeros((self.shape[0],self.shape[1]))
+
+		for j in range(mask.shape[0]):
+			for i in range(mask.shape[1]):
+				d = ((j-mask.shape[0]/2)**2 + (i-mask.shape[1]/2)**2)**0.5
+				if d == 0:
+					mask[j][i] = 0
+					continue
+				x = (((d**2)-(self.cutoff**2))/(d*self.ringwidth))
+				mask[j][i] = np.exp(-(x**2))
+
+		if not self.inverse:
+			mask = 1 - mask
+
+		return mask
 
 	def butterworth_circle(self):
-		pass
+		mask = np.zeros((self.shape[0],self.shape[1]))
+
+		for j in range(mask.shape[0]):
+			for i in range(mask.shape[1]):
+				x = ((j-(mask.shape[0]/2))**2 + (i-(mask.shape[1]/2))**2)**0.5
+				mask[j][i] = 1/(1 + ((x/self.cutoff)**(2*self.order)))
+
+		if not self.inverse:
+			mask = 1 - mask
+
+		return mask
 
 	def butterworth_band(self):
-		pass
+		mask = np.zeros((self.shape[0],self.shape[1]))
+
+		for j in range(mask.shape[0]):
+			for i in range(mask.shape[1]):
+				d = ((j-mask.shape[0]/2)**2 + (i-mask.shape[1]/2)**2)**0.5
+				if d == self.cutoff:
+					mask[j][i] = 1
+					continue
+				x = (d*self.ringwidth)/((d**2)-(self.cutoff**2))
+				mask[j][i] = 1 - (1/(1 + (x**(2*self.order))))
+
+		if not self.inverse:
+			mask = 1 - mask
+
+		return mask
 
 	def notch(self):
 		pass
@@ -108,6 +172,5 @@ class Filter:
 			mask = 1 - mask
 		return mask
 
-
-#newFilter = Filter((500,500), "ideal", 100, 0, 0)
-#newFilter.generateMask()
+newFilter = Filter((500,500), "butterworth", 100, 0, 0, circle = False, ringwidth = 4, order = 10)
+newFilter.generateMask()
