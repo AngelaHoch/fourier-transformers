@@ -1,11 +1,11 @@
 """
 TODO:
 -setters and getters
--notch
 """
 """
 Issues:
 -Butterworth filters do not seem to be fanning out correctly
+-theta = 45, thetaspan = 90, creates blank mask in directional: should create a >< shape. WHHHHHHHHHHHHHYYYYYYYYYYYYYY
 """
 """
 To use functions from this class, create a Filter object with the following values:
@@ -21,7 +21,6 @@ To use functions from this class, create a Filter object with the following valu
 
 	**optional, they have default values
 """
-
 import numpy as np
 import cv2
 import math
@@ -32,12 +31,14 @@ class Filter:
 		self.shape = shape 
 		self.cutoff = cutoff
 		self.inverse = inverse
-		self.theta = theta
+		self.theta = theta - 90
 		self.ringwidth = ringwidth
 		self.thetaspan = thetaspan
 		self.order = order
 
-		if circle:
+		if filter_func == "notch":
+			pass
+		elif circle:
 			filter_func = filter_func + "_circle"
 		else:
 			filter_func = filter_func + "_band"
@@ -48,24 +49,24 @@ class Filter:
 		filter_mask = self.filter()
 
 		self.final_filter_mask = 255 * (1-filter_mask)
-		#cv2.imshow('inverse of filter', self.final_filter_mask)
-		#cv2.waitKey(0)
-		#cv2.destroyAllWindows()
+		cv2.imshow('inverse of filter', self.final_filter_mask)
+		cv2.waitKey(0)
+		cv2.destroyAllWindows()
 
 		directional_mask = self.directional()
 
 		self.final_filter_mask = 255 * (1-directional_mask)
-		#cv2.imshow('inverse of directional', self.final_filter_mask)
-		#cv2.waitKey(0)
-		#cv2.destroyAllWindows()
+		cv2.imshow('inverse of directional', self.final_filter_mask)
+		cv2.waitKey(0)
+		cv2.destroyAllWindows()
 
 		#self.final_filter_mask = 1 - (filter_mask * directional_mask)
 		self.final_filter_mask = (filter_mask * directional_mask)
 
 		self.final_filter_mask = 255 * self.final_filter_mask
-		#cv2.imshow('final mask', self.final_filter_mask)
-		#cv2.waitKey(0)
-		#cv2.destroyAllWindows()
+		cv2.imshow('final mask', self.final_filter_mask)
+		cv2.waitKey(0)
+		cv2.destroyAllWindows()
 
 		return self.final_filter_mask
 
@@ -161,12 +162,44 @@ class Filter:
 		return mask
 
 	def notch(self):
-		pass
+		#currently using cuttoff to determine how large of an area is being covered
+		#theta to determine the angle 
+		#order to determine where along the the axis the center of the thingamabob is
+		
+		mask = np.zeros((self.shape[0],self.shape[1]))
+
+		self.theta = self.theta * math.pi / 180
+		theta_axis = math.tan(self.theta)
+
+		#these are cartesian
+		c_x1 = self.order / theta_axis
+		c_y1 = self.order * theta_axis
+		c_x2 = -1 * c_x1
+		c_y2 = -1 * c_y1
+
+		#cartesian to matrix:
+		c_x1 = mask.shape[1]//2 + c_x1
+		c_y1 = mask.shape[0]//2 + c_y1
+		c_x2 = mask.shape[1]//2 + c_x2
+		c_y2 = mask.shape[0]//2 + c_y2
+		
+		for j in range(mask.shape[0]):
+			for i in range(mask.shape[1]):
+				a = ((j-c_y1)**2 + (i-c_x1)**2)**0.5
+				b = ((j-c_y2)**2 + (i-c_x2)**2)**0.5
+				if a <= self.cutoff or b <= self.cutoff:
+					mask[j][i] = 1
+
+		if self.inverse:
+			mask = 1 - mask
+
+		return mask
 
 	def directional(self):
 		#matrix of all 1s
 		mask = 1 - np.zeros((self.shape[0],self.shape[1]))
 
+		#spans 180 and over involves the whole matrix
 		if self.thetaspan >= 180:
 			return mask
 
@@ -180,6 +213,7 @@ class Filter:
 		t2 = math.tan(t2)
 
 		for j in range(mask.shape[0]):
+			#matrix to cartesian
 			cart_j = mask.shape[0]//2 - j
 			
 			if t1 == 0:
@@ -192,6 +226,7 @@ class Filter:
 			else:
 				i_2 = cart_j/t2
 
+			#cartesian to matrix
 			i_1 = mask.shape[1]//2 + i_1
 			i_2 = mask.shape[1]//2 + i_2
 
@@ -204,5 +239,5 @@ class Filter:
 		return mask
 
 #newFilter = Filter(//shape, //function, //cutoff, //theta, //theta span, //*inverse, //*circle, //*ringwidth, //*order)
-newFilter = Filter((500,500), "ideal", 100, 45, 180, ringwidth = 4, order = 10)
+newFilter = Filter((500,500), "notch", 5, 30, 180, ringwidth = 4, order = 20)
 newFilter.generateMask()
