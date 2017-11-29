@@ -76,24 +76,24 @@ class Filter:
 		filter_mask = self.filter()
 
 		self.final_filter_mask = 255 * (1-filter_mask)
-		cv2.imshow('inverse of filter', self.final_filter_mask)
-		cv2.waitKey(0)
-		cv2.destroyAllWindows()
+		#cv2.imshow('inverse of filter', self.final_filter_mask)
+		#cv2.waitKey(0)
+		#cv2.destroyAllWindows()
 
 		directional_mask = self.directional()
 
 		self.final_filter_mask = 255 * (1-directional_mask)
-		cv2.imshow('inverse of directional', self.final_filter_mask)
-		cv2.waitKey(0)
-		cv2.destroyAllWindows()
+		#cv2.imshow('inverse of directional', self.final_filter_mask)
+		#cv2.waitKey(0)
+		#cv2.destroyAllWindows()
 
 		#self.final_filter_mask = 1 - (filter_mask * directional_mask)
 		self.final_filter_mask = (filter_mask * directional_mask)
 
 		self.final_filter_mask = 255 * self.final_filter_mask
-		cv2.imshow('final mask', self.final_filter_mask)
-		cv2.waitKey(0)
-		cv2.destroyAllWindows()
+		#cv2.imshow('final mask', self.final_filter_mask)
+		#cv2.waitKey(0)
+		#cv2.destroyAllWindows()
 
 		return self.final_filter_mask
 
@@ -246,19 +246,19 @@ class Filter:
 			#matrix to cartesian
 			cart_j = mask.shape[0]//2 - j
 			
-			if t1 == 0 and cart_j >= 0:
-				i_1 = mask.shape[1]//2
-			elif t1 == 0 and cart_j < 0:
-				i_1 = 0
-			else:
-				i_1 = cart_j * math.cos(t1 * math.pi / 180) / math.sin(t1 *math.pi / 180)
+			#if t1 == 0 and cart_j >= 0:
+			#	i_1 = mask.shape[1]//2
+			#elif t1 == 0 and cart_j < 0:
+			#	i_1 = 0
+			#else:
+			i_1 = cart_j * math.cos(t1 * math.pi / 180) / math.sin(t1 *math.pi / 180)
 
-			if t2 == 90 and cart_j >= 0:				
-				i_2 = 0
-			elif t2 == 90 and cart_j < 0:
-				i_2 = -1 * mask.shape[1]//2
-			else:
-				i_2 = cart_j * math.cos(t2 * math.pi / 180) / math.sin(t2 * math.pi/180)
+			#if t2 == 90 and cart_j >= 0:				
+			#	i_2 = 0
+			#elif t2 == 90 and cart_j < 0:
+			#	i_2 = -1 * mask.shape[1]//2
+			#else:
+			i_2 = cart_j * math.cos(t2 * math.pi / 180) / math.sin(t2 * math.pi/180)
 
 			#cartesian to matrix
 			i_1 = mask.shape[1]//2 + i_1
@@ -273,5 +273,5 @@ class Filter:
 		return mask
 
 #newFilter = Filter(//shape, //function, //cutoff, //theta, //theta span, //*inverse, //*circle, //*ringwidth, //*order)
-newFilter = Filter((500,500), "ideal", 100, 30, 30, ringwidth = 4, order = 20)
+newFilter = Filter((500,500), "ideal", 100, 61, 60, ringwidth = 4, order = 20)
 newFilter.generateMask()
