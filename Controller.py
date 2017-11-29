@@ -1,40 +1,47 @@
 import numpy as np
 import cv2
+from QtGUI import GUI
+from Filters import Filter
+import FourierTransform as FT
 
 class Controller(object):
 
-<<<<<<< HEAD
-    def __init__(self, image):
-        self.filter = Filter(image.shape)
-=======
     def __init__(self):
-        self.filter = Filter()
-        self.setImage(np.zeroes((256,256), dtype = np.uint8))
->>>>>>> 50ca772aa4a6365099b3816bce7b1c033ff73384
-        self.mask = self.filter.generateMask()
-        GUI.setMask(self.mask)
+        self.gui = GUI(self)
+        self.filter = Filter((256,256))
+        self.openImage('Lenna.png')
+        self.gui.setMask(self.mask)
+        self.gui.show()
+
+    def setShape(self, s):
+        # print("Controller.setShape")
+        if s == 0:
+            self.filter.setCircle(True)
+        else:
+            self.filter.setCircle(False)
+
+        self.recomputeAndApplyMask()
+
+    def setVariant(self, v):
+        if v == 0:
+            self.filter.setVariant(False)
+        else:
+            self.filter.setVariant(True)
+        self.recomputeAndApplyMask()
+
+    def setMaskFunction(self, m):
+        masks = {}
+        masks[0] = "ideal"
+        masks[1] = "gaussian"
+        masks[2] = "butterworth"
+        self.filter.setMaskFunction(masks[m])
+        self.recomputeAndApplyMask()
 
     def setFrequency(self, f):
         self.filter.setFrequency(f)
         self.recomputeAndApplyMask()
 
-    def setVariant(self, v):
-        self.filter.setVariant(v)
-        self.recomputeAndApplyMask()
-
-    def setShape(self, s):
-        self.filter.setShape()
-        self.recomputeAndApplyMask()
-
-    def setMaskFunction(self, m):
-        self.filter.setMaskFunction(m)
-        self.recomputeAndApplyMask()
-
-    def setOrder(self, o):
-        self.filter.setOrder(o)
-        self.recomputeAndApplyMask()
-
-    def setSpan(self, p):
+    def setFrequencySpan(self, p):
         self.filter.setSpan(p)
         self.recomputeAndApplyMask()
 
@@ -42,23 +49,36 @@ class Controller(object):
         self.filter.setAngle(a)
         self.recomputeAndApplyMask()
 
+    def setAngleSpan(self, s):
+        # self.filter.setAngleSpan(s)
+        self.recomputeAndApplyMask()
+
+    def setOrder(self, o):
+        self.filter.setOrder(o)
+        self.recomputeAndApplyMask()
+
     def recomputeAndApplyMask(self):
-        self.mask = self.filter.generateMask()
+        self.mask = self.filter.generateMask().astype(np.uint8)
         self.applyMask()
-        GUI.setMask(self.mask)
+        self.gui.setMask(self.mask)
 
     def openImage(self, filename):
-        np_image = cv2.open(filename, 0)
+        np_image = cv2.imread(filename, 0)
         self.setImage(np_image)
 
     def setImage(self, np_image):
         self.image = np_image
         self.ft = FT.forward(self.image)
-        self.applyMask()
-        GUI.setImage(self.image)
-        GUI.setFT(self.ft)
+        self.filter.shape = self.image.shape
+        self.recomputeAndApplyMask()
+        self.gui.setImage(self.image)
+        self.gui.setFT(FT.normalize(self.ft))
 
     def applyMask(self):
         result_ft = self.mask * self.ft
         self.result = FT.inverse(result_ft)
-        GUI.setResult(self.result)
+        self.gui.setResult(self.result)
+
+
+if __name__ == '__main__':
+    Controller()

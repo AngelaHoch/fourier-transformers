@@ -27,33 +27,40 @@ class Filter:
 		self.thetaspan = thetaspan
 		self.order = order
 		self.circle = circle
+		self.func = filter_func
 
-		if filter_func == "notch":
+		if self.func == "notch":
 			pass
 		elif circle:
-			filter_func = filter_func + "_circle"
+			self.func = self.func + "_circle"
 		else:
-			filter_func = filter_func + "_band"
+			self.func = self.func + "_band"
 
-		self.filter = getattr(self, filter_func, self.ideal_circle)
+		self.filter = getattr(self, self.func, self.ideal_circle)
 
 	def setFrequency(self, f):
 		self.cutoff = f
 
 	def setVariant(self, v):
-		self.ringwidth = v
+		self.inverse = v
 
 	def setShape(self, s):
 		self.shape = s
 
-	def setMaskFunction(self, m):
-		if m == "notch":
-			filter_func = m
+	def setCircle(self, c):
+		# print("Filter.setCircle")
+		self.circle = c
+		self.setMaskFunction(self.func.split('_')[0])
+
+	def setMaskFunction(self, f):
+		if f == "notch":
+			self.func = f
 		elif self.circle:
-			filter_func = m + "_circle"
+			self.func = f + "_circle"
 		else:
-			filter_func = m + "_band"
-		self.filter = getattr(self, filter_func, self.ideal_circle)
+			self.func = f + "_band"
+		print(self.func)
+		self.filter = getattr(self, self.func, self.ideal_circle)
 
 	def setOrder(self, o):
 		self.order = o

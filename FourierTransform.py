@@ -6,8 +6,8 @@ def forward(matrix):
     return fourier
 
 def normalize(fourier):
-    fourier = abs(fourier)
-    fourier = np.log10(fourier)
+    fourier = np.abs(fourier)
+    fourier = np.log(fourier)
     lowest = np.nanmin(fourier[np.isfinite(fourier)])
     highest = np.nanmax(fourier[np.isfinite(fourier)])
     org_range = highest - lowest
