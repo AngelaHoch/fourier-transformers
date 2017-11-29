@@ -6,14 +6,15 @@ class Controller(object):
 
     def __init__(self):
         self.filter = Filter()
+        self.setImage(np.zeroes((256,256), dtype = np.uint8))
         self.mask = self.filter.generateMask()
-        GUI.setMask(self.Mask)
+        GUI.setMask(self.mask)
 
-    def SetFrequency(self, f):
+    def setFrequency(self, f):
         self.filter.setFrequency(f)
         self.recomputeAndApplyMask()
 
-    def SetVariant(self, v):
+    def setVariant(self, v):
         self.filter.setVariant(v)
         self.recomputeAndApplyMask()
 
