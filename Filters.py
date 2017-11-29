@@ -66,22 +66,8 @@ class Filter:
 
 	def generateMask(self):
 		filter_mask = self.filter()
-		self.final_filter_mask = 255 * (1-filter_mask)
-		#cv2.imshow('inverse of filter', self.final_filter_mask)
-		#cv2.waitKey(0)
-		#cv2.destroyAllWindows()
-
 		directional_mask = self.directional()
-		self.final_filter_mask = 255 * (1-directional_mask)
-		#cv2.imshow('inverse of directional', self.final_filter_mask)
-		#cv2.waitKey(0)
-		#cv2.destroyAllWindows()
-
-		self.final_filter_mask = (1 - (filter_mask * directional_mask)) * 255
-		#cv2.imshow('final mask', self.final_filter_mask)
-		#cv2.waitKey(0)
-		#cv2.destroyAllWindows()
-
+		self.final_filter_mask = 255 * (filter_mask * directional_mask)
 		return self.final_filter_mask
 
 	def ideal_circle(self):
@@ -248,7 +234,3 @@ class Filter:
 					mask[j][i] = 0
 
 		return mask
-
-#newFilter = Filter(//shape, //function, //cutoff, //theta, //theta span, //*inverse, //*circle, //*ringwidth, //*order)
-#newFilter = Filter((500,500), "butterworth", 10, 45, 45, circle = False, inverse = True, ringwidth = 1, order = 3)
-#newFilter.generateMask()
