@@ -4,8 +4,7 @@ TODO:
 """
 """
 Issues:
--Butterworth filters do not seem to be fanning out correctly
--theta = 45, thetaspan = 90, creates blank mask in directional: should create a >< shape. WHHHHHHHHHHHHHYYYYYYYYYYYYYY
+-theta = 45, thetaspan = 90, creates blank mask in directional
 """
 """
 To use functions from this class, create a Filter object with the following values:
@@ -27,14 +26,15 @@ import math
 
 class Filter:
 
-	def __init__(self, shape, filter_func, cutoff, theta, thetaspan, inverse = False, circle = True, ringwidth = 1, order = 1):
+	def __init__(self, shape, filter_func = "ideal", cutoff = 100, theta = 0, thetaspan = 90, inverse = False, circle = True, ringwidth = 1, order = 1):
 		self.shape = shape 
 		self.cutoff = cutoff
 		self.inverse = inverse
-		self.theta = theta - 90
+		self.theta = theta 
 		self.ringwidth = ringwidth
 		self.thetaspan = thetaspan
 		self.order = order
+		self.circle = circle
 
 		if filter_func == "notch":
 			pass
@@ -44,6 +44,33 @@ class Filter:
 			filter_func = filter_func + "_band"
 
 		self.filter = getattr(self, filter_func, self.ideal_circle)
+
+	def setFrequency(self, f):
+		self.cutoff = f
+
+	def setVariant(self, v):
+		self.ringwidth = v
+
+	def setShape(self, s):
+		self.shape = s
+
+	def setMaskFunction(self, m):
+		if m == "notch":
+			filter_func = m
+		elif self.circle:
+			filter_func = m + "_circle"
+		else:
+			filter_func = m + "_band"
+		self.filter = getattr(self, filter_func, self.ideal_circle)
+
+	def setOrder(self, o):
+		self.order = o
+
+	def setSpan(self, p):
+		self.thetaspan = p
+
+	def setAngle(self, a):
+		self.theta = a
 
 	def generateMask(self):
 		filter_mask = self.filter()
@@ -168,12 +195,12 @@ class Filter:
 		
 		mask = np.zeros((self.shape[0],self.shape[1]))
 
-		self.theta = self.theta * math.pi / 180
-		theta_axis = math.tan(self.theta)
+		theta = self.theta * math.pi / 180
+		theta_axis = math.tan(theta)
 
 		#these are cartesian
-		c_x1 = self.order / theta_axis
-		c_y1 = self.order * theta_axis
+		c_x1 = self.order * math.cos(theta)
+		c_y1 = self.order * math.sin(theta)
 		c_x2 = -1 * c_x1
 		c_y2 = -1 * c_y1
 
@@ -200,31 +227,38 @@ class Filter:
 		mask = 1 - np.zeros((self.shape[0],self.shape[1]))
 
 		#spans 180 and over involves the whole matrix
-		if self.thetaspan >= 180:
+		if self.thetaspan >= 90:
 			return mask
 
-		self.theta = self.theta * math.pi / 180
-		self.thetaspan = self.thetaspan * math.pi / 180
+		#self.theta = self.theta * math.pi / 180
+		#self.thetaspan = self.thetaspan * math.pi / 180
 
 		#t1, t2 is the range of theta; the whole range spans 0 - 2pi radians. if t1 = t2, it is 2pi
 		t1 = self.theta - (self.thetaspan)
 		t2 = self.theta + (self.thetaspan)
-		t1 = math.tan(t1)
-		t2 = math.tan(t2)
+
+		if t2 < t1:
+			temp = t1
+			t1 = t2
+			t2 = t1
 
 		for j in range(mask.shape[0]):
 			#matrix to cartesian
 			cart_j = mask.shape[0]//2 - j
 			
-			if t1 == 0:
+			if t1 == 0 and cart_j >= 0:
+				i_1 = mask.shape[1]//2
+			elif t1 == 0 and cart_j < 0:
 				i_1 = 0
 			else:
-				i_1 = cart_j/t1
+				i_1 = cart_j * math.cos(t1 * math.pi / 180) / math.sin(t1 *math.pi / 180)
 
-			if t2 == 0:
-				i_2 = mask.shape[1]
+			if t2 == 90 and cart_j >= 0:				
+				i_2 = 0
+			elif t2 == 90 and cart_j < 0:
+				i_2 = -1 * mask.shape[1]//2
 			else:
-				i_2 = cart_j/t2
+				i_2 = cart_j * math.cos(t2 * math.pi / 180) / math.sin(t2 * math.pi/180)
 
 			#cartesian to matrix
 			i_1 = mask.shape[1]//2 + i_1
@@ -239,5 +273,5 @@ class Filter:
 		return mask
 
 #newFilter = Filter(//shape, //function, //cutoff, //theta, //theta span, //*inverse, //*circle, //*ringwidth, //*order)
-newFilter = Filter((500,500), "notch", 5, 30, 180, ringwidth = 4, order = 20)
+newFilter = Filter((500,500), "ideal", 100, 30, 30, ringwidth = 4, order = 20)
 newFilter.generateMask()

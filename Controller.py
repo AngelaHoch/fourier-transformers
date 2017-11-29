@@ -1,11 +1,10 @@
 import numpy as np
 import cv2
 
-
 class Controller(object):
 
-    def __init__(self):
-        self.filter = Filter()
+    def __init__(self, image):
+        self.filter = Filter(image.shape)
         self.mask = self.filter.generateMask()
         GUI.setMask(self.Mask)
 
@@ -57,13 +56,3 @@ class Controller(object):
         result_ft = self.mask * self.ft
         self.result = FT.inverse(result_ft)
         GUI.setResult(self.result)
-
-
-
-
-
-
-
-
-
-
