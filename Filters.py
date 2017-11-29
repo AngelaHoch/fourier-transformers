@@ -41,6 +41,9 @@ class Filter:
 	def setFrequency(self, f):
 		self.cutoff = f
 
+	def setFrequencySpan(self, s):
+		self.ringwidth = s
+
 	def setVariant(self, v):
 		self.inverse = v
 
@@ -65,7 +68,7 @@ class Filter:
 	def setOrder(self, o):
 		self.order = o
 
-	def setSpan(self, p):
+	def setAngleSpan(self, p):
 		self.thetaspan = p
 
 	def setAngle(self, a):
@@ -74,7 +77,8 @@ class Filter:
 	def generateMask(self):
 		filter_mask = self.filter()
 		directional_mask = self.directional()
-		self.final_filter_mask = 255 * (filter_mask * directional_mask)
+		self.final_filter_mask = filter_mask * directional_mask
+		self.maskImage = (255 * self.final_filter_mask).astype(np.uint8)
 		return self.final_filter_mask
 
 	def ideal_circle(self):
@@ -240,4 +244,4 @@ class Filter:
 				elif i < i_1 and i > i_2:
 					mask[j][i] = 0
 
-		return mask
+		return 1 - mask

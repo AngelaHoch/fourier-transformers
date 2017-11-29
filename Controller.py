@@ -9,8 +9,8 @@ class Controller(object):
     def __init__(self):
         self.gui = GUI(self)
         self.filter = Filter((256,256))
-        self.openImage('Lenna.png')
-        self.gui.setMask(self.mask)
+        self.openImage('YmW3f.png')
+        self.gui.setMask(self.filter.maskImage)
         self.gui.show()
 
     def setShape(self, s):
@@ -42,7 +42,7 @@ class Controller(object):
         self.recomputeAndApplyMask()
 
     def setFrequencySpan(self, p):
-        self.filter.setSpan(p)
+        self.filter.setFrequencySpan(p)
         self.recomputeAndApplyMask()
 
     def setAngle(self, a):
@@ -50,7 +50,7 @@ class Controller(object):
         self.recomputeAndApplyMask()
 
     def setAngleSpan(self, s):
-        # self.filter.setAngleSpan(s)
+        self.filter.setAngleSpan(s)
         self.recomputeAndApplyMask()
 
     def setOrder(self, o):
@@ -60,7 +60,7 @@ class Controller(object):
     def recomputeAndApplyMask(self):
         self.mask = self.filter.generateMask().astype(np.uint8)
         self.applyMask()
-        self.gui.setMask(self.mask)
+        self.gui.setMask(self.filter.maskImage)
 
     def openImage(self, filename):
         np_image = cv2.imread(filename, 0)
@@ -76,7 +76,7 @@ class Controller(object):
 
     def applyMask(self):
         result_ft = self.mask * self.ft
-        self.result = FT.inverse(result_ft)
+        self.result = np.abs(FT.inverse(result_ft)).astype(np.uint8)
         self.gui.setResult(self.result)
 
 

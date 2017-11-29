@@ -100,6 +100,8 @@ class QImageGrid(QWidget):
 	def __init__(self):
 		super().__init__()
 
+		self.setMinimumWidth(512)
+
 		self.scene_nw = QGraphicsScene()
 		self.scene_ne = QGraphicsScene()
 		self.scene_sw = QGraphicsScene()
@@ -120,6 +122,10 @@ class QImageGrid(QWidget):
 		self.view_ne = QGraphicsView(self.scene_ne)
 		self.view_sw = QGraphicsView(self.scene_sw)
 		self.view_se = QGraphicsView(self.scene_se)
+		self.view_nw.setStyleSheet("QGraphicsView { border-style: none; }");
+		self.view_ne.setStyleSheet("QGraphicsView { border-style: none; }");
+		self.view_sw.setStyleSheet("QGraphicsView { border-style: none; }");
+		self.view_se.setStyleSheet("QGraphicsView { border-style: none; }");
 		self.view_nw.setGeometry(0, 0, 256, 256)
 		self.view_ne.setGeometry(0, 0, 256, 256)
 		self.view_sw.setGeometry(0, 0, 256, 256)
@@ -128,14 +134,14 @@ class QImageGrid(QWidget):
 		self.layout.addWidget(self.view_ne, 0, 1)
 		self.layout.addWidget(self.view_sw, 1, 0)
 		self.layout.addWidget(self.view_se, 1, 1)
-		self.layout.setSpacing(2)
-		self.layout.setContentsMargins(2, 2, 2, 2)
+		self.layout.setSpacing(0)
+		self.layout.setContentsMargins(0, 0, 0, 0)
 		self.setLayout(self.layout)
 
-		pm_nw = QPixmap('5903.jpg')
-		pm_ne = QPixmap('5903.jpg')
-		pm_sw = QPixmap('5903.jpg')
-		pm_se = QPixmap('5903.jpg')
+		pm_nw = QPixmap('YmW3f.jpg')
+		pm_ne = QPixmap('YmW3f.jpg')
+		pm_sw = QPixmap('YmW3f.jpg')
+		pm_se = QPixmap('YmW3f.jpg')
 		self.image_nw = self.scene_nw.addPixmap(pm_nw)
 		self.image_ne = self.scene_ne.addPixmap(pm_ne)
 		self.image_sw = self.scene_sw.addPixmap(pm_sw)
@@ -191,6 +197,7 @@ class QControlPanel(QWidget):
 		self.setGeometry(0, 0, 256, 512)
 		# self.setSizePolicy(QSizePolicy.Fixed)
 		self.setMinimumWidth(256)
+		self.setMaximumWidth(256)
 		self.layout = QVBoxLayout()
 		self.controls = {}
 		self.controls['frequency'] = QSpinSlider("Frequency", 20, 0, 256/2)
@@ -289,8 +296,8 @@ class GUI:
 		self.control_panel.connect('function', controller.setMaskFunction)
 		self.control_panel.connect('frequency', controller.setFrequency)
 		self.control_panel.connect('freq_span', controller.setFrequencySpan)
-		self.control_panel.connect('angle', controller.setAngle)
-		self.control_panel.connect('angle_span', controller.setAngleSpan)
+		self.control_panel.connect('theta', controller.setAngle)
+		self.control_panel.connect('theta_span', controller.setAngleSpan)
 		self.control_panel.connect('order', controller.setOrder)
 
 		self.layout.addWidget(self.image_grid)

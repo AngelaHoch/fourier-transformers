@@ -12,7 +12,7 @@ def normalize(fourier):
     highest = np.nanmax(fourier[np.isfinite(fourier)])
     org_range = highest - lowest
     normalize = (fourier - lowest) / org_range * 255
-    return normalize
+    return normalize.astype(np.uint8)
 
 def inverse(fourier):
     fourier = np.fft.ifftshift(fourier)
