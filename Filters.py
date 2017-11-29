@@ -273,5 +273,5 @@ class Filter:
 		return mask
 
 #newFilter = Filter(//shape, //function, //cutoff, //theta, //theta span, //*inverse, //*circle, //*ringwidth, //*order)
-newFilter = Filter((500,500), "ideal", 100, 61, 60, ringwidth = 4, order = 20)
-newFilter.generateMask()
+#newFilter = Filter((500,500), "ideal", 100, 61, 60, ringwidth = 4, order = 20)
+#newFilter.generateMask()
