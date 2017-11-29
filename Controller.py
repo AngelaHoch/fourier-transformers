@@ -3,16 +3,22 @@ import cv2
 
 class Controller(object):
 
+<<<<<<< HEAD
     def __init__(self, image):
         self.filter = Filter(image.shape)
+=======
+    def __init__(self):
+        self.filter = Filter()
+        self.setImage(np.zeroes((256,256), dtype = np.uint8))
+>>>>>>> 50ca772aa4a6365099b3816bce7b1c033ff73384
         self.mask = self.filter.generateMask()
-        GUI.setMask(self.Mask)
+        GUI.setMask(self.mask)
 
-    def SetFrequency(self, f):
+    def setFrequency(self, f):
         self.filter.setFrequency(f)
         self.recomputeAndApplyMask()
 
-    def SetVariant(self, v):
+    def setVariant(self, v):
         self.filter.setVariant(v)
         self.recomputeAndApplyMask()
 
