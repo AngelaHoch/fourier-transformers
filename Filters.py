@@ -214,12 +214,12 @@ class Filter:
 		mask = 1 - np.zeros((self.shape[0],self.shape[1]))
 
 		#spans 180 and over involves the whole matrix
-		if self.thetaspan >= 90:
+		if self.thetaspan >= 180:
 			return mask
 
 		#t1, t2 is the range of theta; the whole range spans 0 - 2pi radians. if t1 = t2, it is 2pi
-		t1 = self.theta - (self.thetaspan)
-		t2 = self.theta + (self.thetaspan)
+		t1 = self.theta - (self.thetaspan/2)
+		t2 = self.theta + (self.thetaspan/2)
 
 		if t1 == 0:
 			tan_1 = 0
