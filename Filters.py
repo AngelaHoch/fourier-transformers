@@ -1,12 +1,4 @@
 """
-TODO:
--setters and getters
-"""
-"""
-Issues:
--theta = 45, thetaspan = 90, creates blank mask in directional
-"""
-"""
 To use functions from this class, create a Filter object with the following values:
 	shape of the image, stored as a tuple
 	filter_func (either ideal, gaussian, or butterworth) as a string
@@ -74,23 +66,18 @@ class Filter:
 
 	def generateMask(self):
 		filter_mask = self.filter()
-
 		self.final_filter_mask = 255 * (1-filter_mask)
 		#cv2.imshow('inverse of filter', self.final_filter_mask)
 		#cv2.waitKey(0)
 		#cv2.destroyAllWindows()
 
 		directional_mask = self.directional()
-
 		self.final_filter_mask = 255 * (1-directional_mask)
 		#cv2.imshow('inverse of directional', self.final_filter_mask)
 		#cv2.waitKey(0)
 		#cv2.destroyAllWindows()
 
-		#self.final_filter_mask = 1 - (filter_mask * directional_mask)
-		self.final_filter_mask = (filter_mask * directional_mask)
-
-		self.final_filter_mask = 255 * self.final_filter_mask
+		self.final_filter_mask = (1 - (filter_mask * directional_mask)) * 255
 		#cv2.imshow('final mask', self.final_filter_mask)
 		#cv2.waitKey(0)
 		#cv2.destroyAllWindows()
@@ -230,35 +217,25 @@ class Filter:
 		if self.thetaspan >= 90:
 			return mask
 
-		#self.theta = self.theta * math.pi / 180
-		#self.thetaspan = self.thetaspan * math.pi / 180
-
 		#t1, t2 is the range of theta; the whole range spans 0 - 2pi radians. if t1 = t2, it is 2pi
 		t1 = self.theta - (self.thetaspan)
 		t2 = self.theta + (self.thetaspan)
 
-		if t2 < t1:
-			temp = t1
-			t1 = t2
-			t2 = t1
+		if t1 == 0:
+			tan_1 = 0
+		else:
+			tan_1 = math.tan(t1 * math.pi/180)
+		if t2 == 0:
+			tan_2 = 0
+		else:
+			tan_2 = math.tan(t2 * math.pi/180)
 
 		for j in range(mask.shape[0]):
 			#matrix to cartesian
 			cart_j = mask.shape[0]//2 - j
 			
-			#if t1 == 0 and cart_j >= 0:
-			#	i_1 = mask.shape[1]//2
-			#elif t1 == 0 and cart_j < 0:
-			#	i_1 = 0
-			#else:
-			i_1 = cart_j * math.cos(t1 * math.pi / 180) / math.sin(t1 *math.pi / 180)
-
-			#if t2 == 90 and cart_j >= 0:				
-			#	i_2 = 0
-			#elif t2 == 90 and cart_j < 0:
-			#	i_2 = -1 * mask.shape[1]//2
-			#else:
-			i_2 = cart_j * math.cos(t2 * math.pi / 180) / math.sin(t2 * math.pi/180)
+			i_1 = cart_j * tan_1
+			i_2 = cart_j * tan_2
 
 			#cartesian to matrix
 			i_1 = mask.shape[1]//2 + i_1
@@ -273,5 +250,5 @@ class Filter:
 		return mask
 
 #newFilter = Filter(//shape, //function, //cutoff, //theta, //theta span, //*inverse, //*circle, //*ringwidth, //*order)
-#newFilter = Filter((500,500), "ideal", 100, 61, 60, ringwidth = 4, order = 20)
+#newFilter = Filter((500,500), "butterworth", 10, 45, 45, circle = False, inverse = True, ringwidth = 1, order = 3)
 #newFilter.generateMask()
