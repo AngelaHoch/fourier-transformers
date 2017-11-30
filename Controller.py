@@ -11,8 +11,6 @@ class Controller(object):
         self.filter = Filter((256,256))
         self.useFullContrastStretch = True
         self.openImage('Lenna.png')
-        self.gui.setMask(self.filter.maskImage)
-        self.gui.show()
 
     def setShape(self, s):
         # print("Controller.setShape")
@@ -79,7 +77,8 @@ class Controller(object):
         self.recomputeAndApplyMask()
         self.gui.setImage(self.image)
         self.gui.setFT(FT.normalize(self.ft))
-
+        self.recomputeAndApplyMask()
+        self.gui.show()
 
 if __name__ == '__main__':
     Controller()
