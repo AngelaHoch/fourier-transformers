@@ -157,7 +157,7 @@ class Filter:
 			for i in range(mask.shape[1]):
 				x = ((j-(mask.shape[0]/2))**2 + (i-(mask.shape[1]/2))**2)**0.5
 				if x == 0:
-					mask[j][i] = 0
+					mask[j][i] = 1
 				else:
 					mask[j][i] = 1/(1 + ((x/self.cutoff)**(2*self.order)))
 
@@ -224,6 +224,8 @@ class Filter:
 		#spans 180 and over involves the whole matrix
 		if self.thetaspan >= 180:
 			return mask
+		if self.thetaspan <= 0:
+			return 1 - mask
 
 		theta = self.theta * math.pi/180
 
@@ -242,7 +244,6 @@ class Filter:
 
 				if delta_theta > self.thetaspan/2 and delta_theta2 > self.thetaspan/2:
 					mask[j][i] = 0
-
 
 		return mask
 
