@@ -14,7 +14,7 @@ import sys
 # from PyQt5.QtWidgets import QWidget, QSlider, QLabel, QApplication, QDesktopWidget, QComboBox, QLineEdit, QHBoxLayout, QVBoxLayout, QGridLayout, QSpinBox, QGraphicsView, QGraphicsScene, QButtonGroup
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QByteArray
-from PyQt5.QtGui import QPixmap, QBrush, QColor
+from PyQt5.QtGui import QPixmap, QBrush, QColor, QImage
 import numpy as np
 
 
@@ -24,17 +24,9 @@ def npimage_to_pixmap(np_image):
 	widgets.
 	"""
 
-	height, width = np_image.shape
-	pgm_data = "P2\n{} {}\n{}\n".format(width, height, 255)
-	for row in range(height):
-		for col in range(width):
-			pgm_data += str(np_image[row, col]) + " "
-		pgm_data += "\n"
-
-	pixmap = QPixmap()
-	ba = QByteArray()
-	pixmap.loadFromData(ba.append(pgm_data), "PGM")
-	return pixmap
+	w, h = np_image.shape
+	data = np_image.reshape((1, w*h))
+	return QPixmap.fromImage(QImage(data, w, h, QImage.Format_Grayscale8))
 
 
 class QSpinSlider(QWidget):
