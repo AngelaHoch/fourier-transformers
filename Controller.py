@@ -9,7 +9,7 @@ class Controller(object):
     def __init__(self):
         self.gui = GUI(self)
         self.filter = Filter((256,256))
-        self.openImage('YmW3f.png')
+        self.openImage('Lenna.png')
         self.gui.setMask(self.filter.maskImage)
         self.gui.show()
 
@@ -58,7 +58,7 @@ class Controller(object):
         self.recomputeAndApplyMask()
 
     def recomputeAndApplyMask(self):
-        self.mask = self.filter.generateMask().astype(np.uint8)
+        self.mask = self.filter.generateMask()
         self.applyMask()
         self.gui.setMask(self.filter.maskImage)
 

@@ -18,7 +18,7 @@ import math
 
 class Filter:
 
-	def __init__(self, shape, filter_func = "ideal", cutoff = 100, theta = 0, thetaspan = 90, inverse = False, circle = True, ringwidth = 1, order = 1):
+	def __init__(self, shape, filter_func = "ideal", cutoff = 100, theta = 0, thetaspan = 180, inverse = False, circle = True, ringwidth = 1, order = 1):
 		self.shape = shape 
 		self.cutoff = cutoff
 		self.inverse = inverse
