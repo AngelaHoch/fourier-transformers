@@ -10,7 +10,7 @@ class Controller(object):
         self.gui = GUI(self)
         self.filter = Filter((256,256))
         self.useFullContrastStretch = True
-        self.openImage('YmW3f.png')
+        self.openImage('Lenna.png')
         self.gui.setMask(self.filter.maskImage)
         self.gui.show()
 

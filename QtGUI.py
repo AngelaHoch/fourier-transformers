@@ -16,7 +16,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QByteArray
 from PyQt5.QtGui import QPixmap, QBrush, QColor, QImage
 import numpy as np
-
+import cv2
+import os
 
 def npimage_to_pixmap(np_image):
 	"""
@@ -24,8 +25,8 @@ def npimage_to_pixmap(np_image):
 	widgets.
 	"""
 
-	w, h = np_image.shape
-	data = np_image.reshape((1, w*h))
+	h, w = np_image.shape
+	data = np_image.view().reshape((1, w*h))
 	return QPixmap.fromImage(QImage(data, w, h, QImage.Format_Grayscale8))
 
 
@@ -181,6 +182,8 @@ class QControlPanel(QWidget):
 	def __init__(self):
 		super().__init__()
 
+		self.setAcceptDrops(True)
+
 		self.fn = {}
 		self.fn['shapeChange'] = lambda id: id
 		self.fn['variantChange'] = lambda id: id
@@ -254,6 +257,19 @@ class QControlPanel(QWidget):
 		self.layout.setContentsMargins(16, 16, 16, 16)
 		self.setLayout(self.layout)
 
+	def dragEnterEvent(self, e):
+		if e.mimeData().hasUrls():
+			e.accept()
+		else:
+			e.ignore()
+
+	def dropEvent(self, e):
+		path = e.mimeData().urls()[0].toLocalFile()
+		print(path)
+		if os.path.isfile(path):
+			np_image = cv2.imread(path, 0)
+			self.fn['setImage'](np_image)
+
 	def onShapeChange(self, id):
 		# print("GUI.onShapeChange")
 		self.fn['shapeChange'](id)
@@ -271,6 +287,8 @@ class QControlPanel(QWidget):
 			self.fn['variantChange'] = fn
 		elif param == 'function':
 			self.fn['functionChange'] = fn
+		elif param == 'image':
+			self.fn['setImage'] = fn
 		elif param in self.controls:
 			self.controls[param].connect(fn)
 
@@ -286,6 +304,7 @@ class GUI:
 		self.control_panel.connect('shape', controller.setShape)
 		self.control_panel.connect('variant', controller.setVariant)
 		self.control_panel.connect('function', controller.setMaskFunction)
+		self.control_panel.connect('image', controller.setImage)
 		self.control_panel.connect('frequency', controller.setFrequency)
 		self.control_panel.connect('freq_span', controller.setFrequencySpan)
 		self.control_panel.connect('theta', controller.setAngle)
