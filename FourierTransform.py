@@ -5,9 +5,10 @@ def forward(matrix):
     fourier = np.fft.fftshift(fourier)
     return fourier
 
-def normalize(fourier):
+def normalize(fourier, useLog = True):
     fourier = np.abs(fourier)
-    fourier = np.log(fourier)
+    if useLog:
+        fourier = np.log(fourier)
     lowest = np.nanmin(fourier[np.isfinite(fourier)])
     highest = np.nanmax(fourier[np.isfinite(fourier)])
     org_range = highest - lowest

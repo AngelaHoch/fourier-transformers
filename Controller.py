@@ -9,6 +9,7 @@ class Controller(object):
     def __init__(self):
         self.gui = GUI(self)
         self.filter = Filter((256,256))
+        self.useFullContrastStretch = True
         self.openImage('YmW3f.png')
         self.gui.setMask(self.filter.maskImage)
         self.gui.show()
@@ -61,6 +62,8 @@ class Controller(object):
         self.mask = self.filter.generateMask()
         result_ft = self.mask * self.ft
         self.result = np.abs(FT.inverse(result_ft)).astype(np.uint8)
+        if self.useFullContrastStretch:
+            self.gui.setResult(FT.normalize(self.result, False))
         self.gui.setResult(self.result)
         # self.gui.setMask(self.filter.maskImage)
         self.gui.setMask(FT.normalize(result_ft))
