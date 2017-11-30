@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import ma
 
 def forward(matrix):
     fourier = np.fft.fft2(matrix)
@@ -8,7 +9,7 @@ def forward(matrix):
 def normalize(fourier, useLog = True):
     fourier = np.abs(fourier)
     if useLog:
-        fourier = np.log(fourier)
+        fourier = ma.log(fourier)
     lowest = np.nanmin(fourier[np.isfinite(fourier)])
     highest = np.nanmax(fourier[np.isfinite(fourier)])
     org_range = highest - lowest
