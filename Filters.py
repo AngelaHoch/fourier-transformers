@@ -1,10 +1,10 @@
 """
 To use functions from this class, create a Filter object with the following values:
 	shape of the image, stored as a tuple
-	filter_func (either ideal, gaussian, or butterworth) as a string
-	cutoff as an int
-	theta as a float
-	thetaspan (how many degrees wide is the slice) as a float
+	**filter_func (either ideal, gaussian, or butterworth) as a string
+	**cutoff as an int
+	**theta as a float
+	**thetaspan (how many degrees wide is the slice) as a float
 	**inverse as a boolean (low pass and band pass will be "False")
 	**circle as a boolean (band filters will be "False")
 	**ringwidth as an int
@@ -74,11 +74,20 @@ class Filter:
 		self.theta = a
 
 	def generateMask(self):
-		filter_mask = self.filter()
+		if self.inverse:
+			filter_mask = 1.0 - self.filter()
+		else:
+			filter_mask = self.filter()
 		directional_mask = self.directional()
 		self.final_filter_mask = filter_mask * directional_mask
+		#self.final_filter_mask = directional_mask
 		self.maskImage = (255 * self.final_filter_mask).astype(np.uint8)
-		return self.final_filter_mask
+
+		if self.inverse:
+			self.maskImage = 255 - self.maskImage
+			return 1.0 - self.final_filter_mask
+		else:
+			return self.final_filter_mask
 
 	def ideal_circle(self):
 		mask = np.zeros((self.shape[0],self.shape[1]))
@@ -147,7 +156,10 @@ class Filter:
 		for j in range(mask.shape[0]):
 			for i in range(mask.shape[1]):
 				x = ((j-(mask.shape[0]/2))**2 + (i-(mask.shape[1]/2))**2)**0.5
-				mask[j][i] = 1/(1 + ((x/self.cutoff)**(2*self.order)))
+				if x == 0:
+					mask[j][i] = 0
+				else:
+					mask[j][i] = 1/(1 + ((x/self.cutoff)**(2*self.order)))
 
 		if self.inverse:
 			mask = 1 - mask
@@ -207,40 +219,36 @@ class Filter:
 
 	def directional(self):
 		#matrix of all 1s
-		mask = 1 - np.zeros((self.shape[0],self.shape[1]))
+		mask = 1 - np.zeros(self.shape)
 
 		#spans 180 and over involves the whole matrix
 		if self.thetaspan >= 180:
 			return mask
 
-		#t1, t2 is the range of theta; the whole range spans 0 - 2pi radians. if t1 = t2, it is 2pi
-		t1 = self.theta - (self.thetaspan/2)
-		t2 = self.theta + (self.thetaspan/2)
-
-		if t1 == 0:
-			tan_1 = 0
-		else:
-			tan_1 = math.tan(t1 * math.pi/180)
-		if t2 == 0:
-			tan_2 = 0
-		else:
-			tan_2 = math.tan(t2 * math.pi/180)
+		theta = self.theta * math.pi/180
 
 		for j in range(mask.shape[0]):
-			#matrix to cartesian
-			cart_j = mask.shape[0]//2 - j
-			
-			i_1 = cart_j * tan_1
-			i_2 = cart_j * tan_2
-
-			#cartesian to matrix
-			i_1 = mask.shape[1]//2 + i_1
-			i_2 = mask.shape[1]//2 + i_2
-
 			for i in range(mask.shape[1]):
-				if i > i_1 and i < i_2:
-					mask[j][i] = 0
-				elif i < i_1 and i > i_2:
+				#r = ((j-mask.shape[0]/2)**2 + (i-mask.shape[1]/2)**2)**0.5
+				y = j - mask.shape[0]//2
+				x = i - mask.shape[1]//2
+				alpha = math.atan2(y, x)
+
+				delta_theta = self.clampangle(alpha - theta)
+				delta_theta2 = self.clampangle(alpha - theta - math.pi)
+
+				delta_theta = 180.0/math.pi*math.fabs(delta_theta)
+				delta_theta2 = 180.0/math.pi*math.fabs(delta_theta2)
+
+				if delta_theta > self.thetaspan/2 and delta_theta2 > self.thetaspan/2:
 					mask[j][i] = 0
 
-		return 1 - mask
+
+		return mask
+
+	def clampangle(self, delta):
+		if delta > math.pi:
+			delta = delta - (2.0*math.pi)
+		if delta < -math.pi:
+			delta = delta + (2.0*math.pi)
+		return delta
