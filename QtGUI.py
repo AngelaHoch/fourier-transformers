@@ -192,11 +192,11 @@ class QControlPanel(QWidget):
 		self.setMaximumWidth(256)
 		self.layout = QVBoxLayout()
 		self.controls = {}
-		self.controls['frequency'] = QSpinSlider("Frequency", 20, 0, 256/2)
+		self.controls['frequency'] = QSpinSlider("Frequency", 20, 1, 256/2)
 		self.controls['freq_span'] = QSpinSlider("Freq. span", 5, 1, 256/2)
 		self.controls['theta'] = QSpinSlider("Theta", 0, 0, 180)
 		self.controls['theta_span'] = QSpinSlider("Theta span", 180, 0, 180)
-		self.controls['order'] = QSpinSlider("Order", 1, 0, 10)
+		self.controls['order'] = QSpinSlider("Order", 2, 1, 10)
 		self.controls['order'].slider.setTickPosition(QSlider.TicksBelow)
 		self.controls['order'].slider.setTickInterval(1)
 
