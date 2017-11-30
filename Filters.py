@@ -224,6 +224,8 @@ class Filter:
 		#spans 180 and over involves the whole matrix
 		if self.thetaspan >= 180:
 			return mask
+		if self.thetaspan <= 0:
+			return 1 - mask
 
 		theta = self.theta * math.pi/180
 
