@@ -9,7 +9,7 @@ class Controller(object):
     def __init__(self):
         self.gui = GUI(self)
         self.filter = Filter((256,256))
-        self.openImage('Lenna.png')
+        self.openImage('YmW3f.png')
         self.gui.setMask(self.filter.maskImage)
         self.gui.show()
 
@@ -59,8 +59,11 @@ class Controller(object):
 
     def recomputeAndApplyMask(self):
         self.mask = self.filter.generateMask()
-        self.applyMask()
-        self.gui.setMask(self.filter.maskImage)
+        result_ft = self.mask * self.ft
+        self.result = np.abs(FT.inverse(result_ft)).astype(np.uint8)
+        self.gui.setResult(self.result)
+        # self.gui.setMask(self.filter.maskImage)
+        self.gui.setMask(FT.normalize(result_ft))
 
     def openImage(self, filename):
         np_image = cv2.imread(filename, 0)
@@ -73,11 +76,6 @@ class Controller(object):
         self.recomputeAndApplyMask()
         self.gui.setImage(self.image)
         self.gui.setFT(FT.normalize(self.ft))
-
-    def applyMask(self):
-        result_ft = self.mask * self.ft
-        self.result = np.abs(FT.inverse(result_ft)).astype(np.uint8)
-        self.gui.setResult(self.result)
 
 
 if __name__ == '__main__':
