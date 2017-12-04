@@ -34,6 +34,7 @@ class Controller(object):
         masks[0] = "ideal"
         masks[1] = "gaussian"
         masks[2] = "butterworth"
+        masks[3] = "notch"
         self.filter.setMaskFunction(masks[m])
         self.recomputeAndApplyMask()
 

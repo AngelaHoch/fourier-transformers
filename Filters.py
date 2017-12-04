@@ -186,7 +186,7 @@ class Filter:
 	def notch(self):
 		#currently using cuttoff to determine how large of an area is being covered
 		#theta to determine the angle 
-		#order to determine where along the the axis the center of the thingamabob is
+		#ringwidth to determine where along the the axis the center of the thingamabob is
 		
 		mask = np.zeros((self.shape[0],self.shape[1]))
 
@@ -194,8 +194,8 @@ class Filter:
 		theta_axis = math.tan(theta)
 
 		#these are cartesian
-		c_x1 = self.order * math.cos(theta)
-		c_y1 = self.order * math.sin(theta)
+		c_x1 = self.ringwidth * math.cos(theta)
+		c_y1 = self.ringwidth * math.sin(theta)
 		c_x2 = -1 * c_x1
 		c_y2 = -1 * c_y1
 
