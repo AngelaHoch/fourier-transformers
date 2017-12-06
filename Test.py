@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import timeit
 
 if __name__ == '__main__':
-    implementations = ['opencv', 'numpy', 'naive']
+    implementations = ['opencv', 'numpy', 'naive', 'fft']
     sizes = ['image_16', 'image_32', 'image_64', 'image_128', 'image_256', 'image_512']
     #colors = ['c', 'm', 'y', 'k', 'burlywood']
 

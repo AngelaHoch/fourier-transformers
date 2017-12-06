@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import pyfftw
-
+from cmath import exp, pi
 
 # image = cv2.imread('Lenna.png', 0)
 image_16 = (255 * np.random.randn(16, 16)).astype(np.uint8)
@@ -16,12 +16,10 @@ def ft_opencv(image):
     fourier = np.fft.fftshift(fourier)
     return fourier
 
-
 def ft_numpy(image):
     fourier = np.fft.fft2(image)
     fourier = np.fft.fftshift(fourier)
     return fourier
-
 
 # pyfftw.interfaces.caches.enable()
 def ft_fftw(image):
@@ -32,10 +30,15 @@ def ft_fftw(image):
     b = pyfftw.FFTW(a, b, axes=(0,1))
     return b
 
-
 def ft_fft(image):
-    pass
-
+    N = len(image)
+    if N <= 1: 
+        return ft_numpy(image)
+    even = ft_fft(image[0::2])
+    odd =  ft_fft(image[1::2])
+    T= [exp(-2j*pi*k/N)*odd[k] for k in range(N//2)]
+    return [even[k] + T[k] for k in range(N//2)] + \
+           [even[k] - T[k] for k in range(N//2)]
 
 def ft_naive(image):
     N = image.shape[0]
