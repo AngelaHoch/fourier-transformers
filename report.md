@@ -5,7 +5,7 @@ Frequency filtering allows us to eliminate unwanted frequencies, giving us human
 Our objective was to create a graphical application that would allow a user to filter images by frequency using filter functions in order to remove periodic noise from the images.
 ## Fourier Transformation
 We tested three implementations of the Fourier Transform: Numpy built-in, a custom fast fourier transform algorithm, and a naive Python+Numpy implementation. Ultimately, we decided to utilize the built-in Numpy implementation due to simplicity and its speed. A comparison of algorithm running times for different sizes of grayscale images is provided below:
-![Fourier Transform Run Times](/images/test.png)
+![Fourier Transform Run Times](/test.png)
 ## Filters
 We created four filter functions: gaussian, butterworth, notch, and ideal. For each filter, we implemented the ability to select filter variations, e.g. whether the filter constructed a circle or a band pass, as well as high or low pass.
 #### Ideal
