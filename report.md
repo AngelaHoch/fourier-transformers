@@ -3,8 +3,7 @@
 Frequency filtering allows us to eliminate unwanted frequencies, giving us humans the ability to remove unwanted periodic noise from an image and therefore allowing us to extract information that was previously obscured by the noise. In order to view and pinpoint where these frequencies are, we made use of the Fourier Transform algorithm to translate our image into the frequency domain. The Fourier Transform is a concept developed by Joseph Fourier stating that any continuous periodic signal can be expressed as a summation of sine and cosine waves, each of a different amplitudes. It serves as an important image processing tool, whereby we transform the pixel values of the input image into a heatmap of the corresponding image in the frequency domain. In the resulting Fourier domain image each pixel represents a particular frequency contained in the spatial domain image. Applying the Fourier Transform allows us, among other things, to do image analysis and frequency filtering, as we have illustrated in our project.
 ## Objective
 Our objective was to create a graphical application that would allow a user to filter images by frequency using filter functions in order to remove periodic noise from the images.
-Fourier Transformation
-Something about the FT function(s): Mihir/Max
+## Fourier Transformation
 We tested three implementations of the Fourier Transform: Numpy built-in, a custom fast fourier transform algorithm, and a naive Python+Numpy implementation. Ultimately, we decided to utilize the built-in Numpy implementation due to simplicity and its speed. A comparison of algorithm running times for a 256x256 grayscale image is provided below:
 ## Filters
 We created four filter functions: gaussian, butterworth, notch, and ideal. For each filter, we implemented the ability to select filter variations, e.g. whether the filter constructed a circle or a band pass, as well as high or low pass.
